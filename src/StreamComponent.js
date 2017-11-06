@@ -20,11 +20,12 @@ export default class StreamComponent extends Component {
 
     var intervalSrc = setInterval(function(){
       if(that.state!==undefined){
-        if(props.stream.videoSrc!==undefined){
-          if (!(that.state.videoSrcUnsafe === props.stream.videoSrc)) {
+        if(props.stream.videoSrcObject!==undefined){
+          var src = URL.createObjectURL(props.stream.videoSrcObject);
+          if (!(that.state.videoSrcUnsafe === src)) {
             that.setState({
-              videoSrc: props.stream.videoSrc,
-              videoSrcUnsafe: props.stream.videoSrc
+              videoSrc: src,
+              videoSrcUnsafe: src
             });
             clearInterval(intervalSrc);
           }
@@ -38,11 +39,12 @@ export default class StreamComponent extends Component {
 
     var intervalSrcProps = setInterval(function(){
       if(that.state!==undefined){
-        if(nextProps.stream.videoSrc!==undefined){
-          if (!(that.state.videoSrcUnsafe === nextProps.stream.videoSrc)) {
+        if(nextProps.stream.videoSrcObject!==undefined){
+          var src = URL.createObjectURL(nextProps.stream.videoSrcObject);
+          if (!(that.state.videoSrcUnsafe === src)) {
             that.setState({
-              videoSrc: nextProps.stream.videoSrc,
-              videoSrcUnsafe: nextProps.stream.videoSrc
+              videoSrc: src,
+              videoSrcUnsafe: src
             });
             clearInterval(intervalSrcProps);
           }
