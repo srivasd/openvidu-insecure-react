@@ -117,12 +117,12 @@ import { OpenVidu } from 'openvidu-browser';
 ```typescript
 //These properties are in the state's component in order to re-render the HTML when the values of them change
 this.state = {
-    valueSessionId: 'SessionA',
-    valueUserName: 'Participant' + Math.floor(Math.random() * 100),
-    session: undefined,
-    mainVideoStream: undefined,
-    localStream: undefined,
-    remoteStreams: [],
+  valueSessionId: 'SessionA',
+  valueUserName: 'Participant' + Math.floor(Math.random() * 100),
+  session: undefined,
+  mainVideoStream: undefined,
+  localStream: undefined,
+  remoteStreams: [],
 };
 
 ```
@@ -141,8 +141,8 @@ this.OV = new OpenVidu();
 // We will join the video-call "sessionId". As there's no server, this parameter must start with the URL of
 // OpenVidu Server (with secure websocket protocol: "wss://") and must include the OpenVidu secret at the end
 this.setState({
-        session: this.OV.initSession("wss://" + window.location.hostname + ":8443/" + this.sessionId.value + '?secret=MY_SECRET'),
-      }
+  session: this.OV.initSession("wss://" + window.location.hostname + ":8443/" + this.sessionId.value + '?secret=MY_SECRET'),
+}
 ```
 Session's identifiers must begin with the URL where _openvidu-server_ listens, so they can connect through WebSocket to it. It is necessary to explicitly set this URL in the param when using a pure frontend web. Since we are in a local sample app, `OV.initSession` will finally receive `wss://localhost:8443/` as its _openvidu-server_ URL. `sessionId` is the distinctive portion of the session identifier and allows OpenVidu to differentiate sessions from each other. In this case, this parameter is retrieved from HTML input `<input class="form-control" type="text" id="sessionId" ... >`, which may be filled by the user. Finally, `'?secret=MY_SECRET'` string allows us to connect to OpenVidu directly from the browser, without a server side.
 
@@ -174,22 +174,22 @@ Session's identifiers must begin with the URL where _openvidu-server_ listens, s
 
 // On every new Stream received...
 mySession.on('streamCreated', (event) => {
-          //We use an auxiliar array to push the new stream
-          var myRemoteStreams = that1.state.remoteStreams; 
+  //We use an auxiliar array to push the new stream
+  var myRemoteStreams = that1.state.remoteStreams; 
 
-          myRemoteStreams.push(event.stream); 
-          //We updated the state in order to re-render the DOM
-          var pushRS = setInterval(that1.setState({
-            remoteStreams: myRemoteStreams
-          }, () => {
-            if(myRemoteStreams===that1.state.remoteStreams){
-              clearInterval(pushRS);
-          }}), 200);
-          // Subscribe to the Stream to receive it. Second parameter is an empty string 
-          // so OpenVidu doesn't create an HTML video by its own 
-          mySession.subscribe(event.stream, '');
+  myRemoteStreams.push(event.stream); 
+  //We updated the state in order to re-render the DOM
+  var pushRS = setInterval(that1.setState({
+    remoteStreams: myRemoteStreams
+  }, () => {
+    if(myRemoteStreams===that1.state.remoteStreams){
+      clearInterval(pushRS);
+  }}), 200);
+  // Subscribe to the Stream to receive it. Second parameter is an empty string 
+  // so OpenVidu doesn't create an HTML video by its own 
+  mySession.subscribe(event.stream, '');
 
-        });
+});
 
 // On every Stream destroyed...
 mySession.on('streamDestroyed', (event) => {
@@ -207,8 +207,8 @@ Here we subscribe to the Session events that interest us. As we are using React 
 
 ```html
 { this.state.remoteStreams.map((s, i) => <div key={i} className="stream-container col-md-6 col-xs-6">
-              <StreamComponent stream={s} isMuted={false} mainVideoStream={this.handleMainVideoStream}></StreamComponent>
-            </div>) }
+  <StreamComponent stream={s} isMuted={false} mainVideoStream={this.handleMainVideoStream}></StreamComponent>
+</div>) }
 ```
 	
 - `streamDestroyed`: for each Stream that has been destroyed (which means a user has left the video-call), we remove it from `remoteStreams` array, so React will automatically delete the required StreamComponent from HTML. We call `event.preventDefault()` to cancel OpenVidu default behaviour towards `streamDestroyed` event, which is the deletion of the previously created HTML video element on `streamCreated` event. Because we are handling the video elements by ourselves taking advantage of Angular capabilities, we tell OpenVidu not to create them on `streamCreated` and not to delete them on `streamDestroyed`, by passing an empty string as second parameter on `Session.subscribe()` method on `streamCreated` and by calling `event.preventDefault()` on `streamDestroyed`.
@@ -268,8 +268,8 @@ With regard to our local Stream, AppComponent's HTML template has also one Strea
 
 ```html
 { this.state.localStream !== undefined ? <div className="stream-container col-md-6 col-xs-6">
-              <StreamComponent stream={this.state.localStream} isMuted={true} mainVideoStream={this.handleMainVideoStream}></StreamComponent>
-            </div> : null }
+  <StreamComponent stream={this.state.localStream} isMuted={true} mainVideoStream={this.handleMainVideoStream}></StreamComponent>
+</div> : null }
 ```
 Last point worth considering is the implementation of StreamComponent. As we are handling Stream objects by ourselves (task which usually is taken care by OpenVidu), and because the URL of Stream objects takes some time to get its final value as the WebRTC negotiation takes place, we must listen to any change in `stream` props property. We do so getting the `HTMLVideoElement` from our view on `constructor()` method, and then listening to `componentWillReceiveProps()`. This allows us to update `videoElement.srcObject` value, which is the ultimate property that indicates our`<video>` element where to receive the media stream. If we didn't do this, the Stream object will update its _srcObject_ property, but our StreamComponent would keep the same initial `videoElement.srcObject` value. This ensures that all our StreamComponent's will properly display all the videos in the video-call using the correct _srcOjbect_ value.
 
@@ -278,6 +278,26 @@ Last point worth considering is the implementation of StreamComponent. As we are
 `videoClicked()` tells our AppComponent parent that the user has clicked on certain video, and that the main view should update the main video stream.
 
 ```typescript
+constructor(props){// Detect any change in 'stream' property (specifically in its 'srcObject' property) initially
+    super(props);
+    ...
+    var that = this;
+
+    var intervalSrc = setInterval(function(){
+      if(that.state!==undefined){
+        if(props.stream.videoSrcObject!==undefined){
+          var src = URL.createObjectURL(props.stream.videoSrcObject);
+          if (!(that.state.videoSrcUnsafe === src)) {
+            that.setState({
+              videoSrc: src,
+              videoSrcUnsafe: src
+            });
+            clearInterval(intervalSrc);
+          }
+        }
+      }
+    }, 200);
+  }
 componentWillReceiveProps(nextProps){ // Detect any change in 'stream' property (specifically in its 'srcObject' property)
     var that = this;
 
@@ -316,11 +336,9 @@ Whenever we want a user to leave the session, we just need to call `session.disc
 
 ```typescript
 leaveSession() {
-
 	// --- 6) Leave the session by calling 'disconnect' method over the Session object ---
 	var mySession = this.state.session;
-    if(this.OV) {mySession.disconnect();}
-
+  if(this.OV) {mySession.disconnect();}
 	...
 }
 ```
