@@ -6,6 +6,8 @@ export default class StreamComponent extends Component {
   constructor(props){
     super(props);
 
+    console.log(props);
+
     this.state = {
       videoSrc: '',
       videoSrcUnsafe: '',
@@ -18,12 +20,11 @@ export default class StreamComponent extends Component {
 
     var intervalSrc = setInterval(function(){
       if(that.state!==undefined){
-        if(props.stream.videoSrcObject!==undefined){
-          var src = URL.createObjectURL(props.stream.videoSrcObject);
-          if (!(that.state.videoSrcUnsafe === src)) {
+        if(props.stream.videoSrc!==undefined){
+          if (!(that.state.videoSrcUnsafe === props.stream.videoSrc)) {
             that.setState({
-              videoSrc: src,
-              videoSrcUnsafe: src
+              videoSrc: props.stream.videoSrc,
+              videoSrcUnsafe: props.stream.videoSrc
             });
             clearInterval(intervalSrc);
           }
@@ -37,12 +38,11 @@ export default class StreamComponent extends Component {
 
     var intervalSrcProps = setInterval(function(){
       if(that.state!==undefined){
-        if(nextProps.stream.videoSrcObject!==undefined){
-          var src = URL.createObjectURL(nextProps.stream.videoSrcObject);
-          if (!(that.state.videoSrcUnsafe === src)) {
+        if(nextProps.stream.videoSrc!==undefined){
+          if (!(that.state.videoSrcUnsafe === nextProps.stream.videoSrc)) {
             that.setState({
-              videoSrc: src,
-              videoSrcUnsafe: src
+              videoSrc: nextProps.stream.videoSrc,
+              videoSrcUnsafe: nextProps.stream.videoSrc
             });
             clearInterval(intervalSrcProps);
           }
@@ -56,7 +56,9 @@ export default class StreamComponent extends Component {
   }
   
   videoClicked(event) {
-    this.props.mainVideoStream(this.props.stream);
+    if(this.props.mainVideoStream){
+      this.props.mainVideoStream(this.props.stream);
+    }
   }
 
   handleVideoClicked(event){
@@ -64,6 +66,7 @@ export default class StreamComponent extends Component {
   }
 
   render() {
+    console.log(this.state.src);
     return (
       <div className="streamcomponent">
         <video src={this.state.videoSrc} id={'native-video-' + this.props.stream.connection.connectionId + '_webcam'} onClick={this.handleVideoClicked} autoPlay={true} muted={this.props.isMuted}></video>
