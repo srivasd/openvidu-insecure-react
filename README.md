@@ -44,7 +44,7 @@ OpenVidu is composed by the three modules displayed on the image above in its in
 
 ## Running this tutorial
 
-1) Clone the repo and checkout to version v1.1.0:
+1) Clone the repo and change to the app directory:
 
 ```bash
 git clone https://github.com/srivasd/openvidu-insecure-react.git
