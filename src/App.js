@@ -59,14 +59,11 @@ class App extends Component {
           var myRemoteStreams = that1.state.remoteStreams; 
 
           myRemoteStreams.push(event.stream); 
-            
-          var pushRS = setInterval(that1.setState({
+          
+          that1.setState({
             remoteStreams: myRemoteStreams
-          }, () => {
-            if(myRemoteStreams===that1.state.remoteStreams){
-              clearInterval(pushRS);
-          }}), 200);
-            
+          });
+
           mySession.subscribe(event.stream, '');
 
         });

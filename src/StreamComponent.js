@@ -36,21 +36,17 @@ export default class StreamComponent extends Component {
   
   componentWillReceiveProps(nextProps){
     var that = this;
-
-    var intervalSrcProps = setInterval(function(){
-      if(that.state!==undefined){
-        if(nextProps.stream.videoSrcObject!==undefined){
-          var src = URL.createObjectURL(nextProps.stream.videoSrcObject);
-          if (!(that.state.videoSrcUnsafe === src)) {
-            that.setState({
-              videoSrc: src,
-              videoSrcUnsafe: src
-            });
-            clearInterval(intervalSrcProps);
-          }
+    if(that.state!==undefined){
+      if(nextProps.stream.videoSrcObject!==undefined){
+        var src = URL.createObjectURL(nextProps.stream.videoSrcObject);
+        if (!(that.state.videoSrcUnsafe === src)) {
+          that.setState({
+            videoSrc: src,
+            videoSrcUnsafe: src
+          });
         }
       }
-    }, 200);
+    }
   }
 
   getNicknameTag() {

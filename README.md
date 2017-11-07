@@ -93,7 +93,7 @@ docker run -p 8443:8443 --rm -e KMS_STUN_IP=stun.l.google.com -e KMS_STUN_PORT=1
 
 ## Understanding the code
 
-This is an Angular project generated with angular-cli, and therefore you will see lots of configuration files and other stuff that doesn't really matter to us. We will focus on the following files under `src/app/` folder:
+This is a React project generated with create-react-app, and therefore you will see lots of configuration files and other stuff that doesn't really matter to us. We will focus on the following files under `src/` folder:
 
 - `App.js`: AppComponent, main component of the app. It contains the functionalities for joining a video-call and for handling the video-calls themselves.
 - `App.css`: CSS for AppComponent.
@@ -179,12 +179,9 @@ mySession.on('streamCreated', (event) => {
 
   myRemoteStreams.push(event.stream); 
   //We updated the state in order to re-render the DOM
-  var pushRS = setInterval(that1.setState({
+  that1.setState({
     remoteStreams: myRemoteStreams
-  }, () => {
-    if(myRemoteStreams===that1.state.remoteStreams){
-      clearInterval(pushRS);
-  }}), 200);
+  });
   // Subscribe to the Stream to receive it. Second parameter is an empty string 
   // so OpenVidu doesn't create an HTML video by its own 
   mySession.subscribe(event.stream, '');
@@ -211,7 +208,7 @@ Here we subscribe to the Session events that interest us. As we are using React 
 </div>) }
 ```
 	
-- `streamDestroyed`: for each Stream that has been destroyed (which means a user has left the video-call), we remove it from `remoteStreams` array, so React will automatically delete the required StreamComponent from HTML. We call `event.preventDefault()` to cancel OpenVidu default behaviour towards `streamDestroyed` event, which is the deletion of the previously created HTML video element on `streamCreated` event. Because we are handling the video elements by ourselves taking advantage of Angular capabilities, we tell OpenVidu not to create them on `streamCreated` and not to delete them on `streamDestroyed`, by passing an empty string as second parameter on `Session.subscribe()` method on `streamCreated` and by calling `event.preventDefault()` on `streamDestroyed`.
+- `streamDestroyed`: for each Stream that has been destroyed (which means a user has left the video-call), we remove it from `remoteStreams` array, so React will automatically delete the required StreamComponent from HTML. We call `event.preventDefault()` to cancel OpenVidu default behaviour towards `streamDestroyed` event, which is the deletion of the previously created HTML video element on `streamCreated` event. Because we are handling the video elements by ourselves taking advantage of React capabilities, we tell OpenVidu not to create them on `streamCreated` and not to delete them on `streamDestroyed`, by passing an empty string as second parameter on `Session.subscribe()` method on `streamCreated` and by calling `event.preventDefault()` on `streamDestroyed`.
 
 ---
 
@@ -300,21 +297,17 @@ constructor(props){// Detect any change in 'stream' property (specifically in it
   }
 componentWillReceiveProps(nextProps){ // Detect any change in 'stream' property (specifically in its 'srcObject' property)
     var that = this;
-
-    var intervalSrcProps = setInterval(function(){
-      if(that.state!==undefined){
-        if(nextProps.stream.videoSrcObject!==undefined){
-          var src = URL.createObjectURL(nextProps.stream.videoSrcObject);
-          if (!(that.state.videoSrcUnsafe === src)) {
-            that.setState({
-              videoSrc: src,
-              videoSrcUnsafe: src
-            });
-            clearInterval(intervalSrcProps);
-          }
+    if(that.state!==undefined){
+      if(nextProps.stream.videoSrcObject!==undefined){
+        var src = URL.createObjectURL(nextProps.stream.videoSrcObject);
+        if (!(that.state.videoSrcUnsafe === src)) {
+          that.setState({
+            videoSrc: src,
+            videoSrcUnsafe: src
+          });
         }
       }
-    }, 200);
+    }
   }
 
 getNicknameTag() { // Gets the nickName of the user
