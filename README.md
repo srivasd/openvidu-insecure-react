@@ -55,7 +55,6 @@ cd openvidu-insecure-react
 
 ```bash
 npm install 
-npm i openvidu-browser
 ```
 
 3) Run the tutorial:
